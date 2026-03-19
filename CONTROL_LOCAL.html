@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMINIASDIMOR - CONTROL LOCAL v5.0</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        // CONFIGURACIÓN DE TU SERVIDOR (Extraída de tu captura)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAuwdj4bvUyj-Oka2tk_MLKX4G95uWrJ5U",
+            authDomain: "aminiasdimor-v4.firebaseapp.com",
+            projectId: "aminiasdimor-v4",
+            storageBucket: "aminiasdimor-v4.firebasestorage.app",
+            messagingSenderId: "522972703623",
+            appId: "1:522972703623:web:bea006e84508762c4f0122",
+            measurementId: "G-TTZCSQ0XMT"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        let currentUser = null;
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; overflow: hidden; }
+        .hidden-section { display: none !important; }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-[#004077] h-screen text-slate-800">
+
+    <div id="loginSection" class="h-full flex items-center justify-center p-4 fade-in">
+        <div class="max-w-md w-full bg-white rounded-[3rem] shadow-2xl p-10 text-center">
+            <img src="https://i.postimg.cc/FzpMRdx4/1074ad9b-e99d-4891-a0ee-3ad298b86a68-removalai-preview.png" class="w-32 mx-auto mb-6">
+            <h2 class="text-2xl font-black text-[#004077] uppercase italic mb-2 tracking-tighter">Control Local</h2>
+            <p class="text-[9px] text-slate-400 uppercase tracking-widest mb-8 font-bold">Acceso Ministerial en la Nube</p>
+            
+            <form id="loginForm" class="space-y-4">
+                <input type="email" id="logEmail" required placeholder="Correo Electrónico" class="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
+                <input type="password" id="logPass" required placeholder="Contraseña" class="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
+                <button type="submit" class="w-full bg-[#F05A28] text-white font-black py-4 rounded-2xl shadow-xl hover:scale-105 transition-all uppercase text-xs">Entrar al Sistema</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="appSection" class="hidden-section h-full flex bg-slate-50 fade-in">
+        <aside class="w-64 bg-[#004077] text-white flex flex-col shadow-2xl">
+            <div class="p-8 border-b border-blue-900/40">
+                <p id="roleLabel" class="text-[7px] bg-[#F05A28] inline-block px-2 py-0.5 rounded-full font-black uppercase mb-1">Dueño</p>
+                <p id="userName" class="font-black text-xs uppercase italic truncate">Cargando...</p>
+            </div>
+            <nav class="flex-1 p-6 space-y-2" id="sideNav">
+                </nav>
+            <div class="p-8">
+                <button onclick="auth.signOut().then(() => location.reload())" class="w-full py-3 border border-blue-800 rounded-xl text-[9px] text-blue-300 font-black uppercase hover:bg-red-500 hover:text-white transition-all">✕ Salir</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <header class="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-10">
+                <h2 id="viewTitle" class="text-xl font-black text-slate-800 uppercase italic italic">Dashboard</h2>
+                <div id="headerActions" class="flex gap-3"></div>
+            </header>
+            <div id="contentArea" class="p-10 overflow-y-auto h-full"></div>
+        </main>
+    </div>
+
+    <script>
+        // LOGICA DE LOGIN REAL
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('logEmail').value;
+            const pass = document.getElementById('logPass').value;
+
+            auth.signInWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
+                    cargarPerfil(userCredential.user.uid);
+                })
+                .catch(err => alert("Acceso denegado: Verifique sus credenciales."));
+        });
+
+        function cargarPerfil(uid) {
+            db.collection("usuarios").doc(uid).get().then(doc => {
+                if(doc.exists) {
+                    currentUser = doc.data();
+                    currentUser.uid = uid;
+                    iniciarApp();
+                } else {
+                    // Si el UID es el tuyo, te auto-creamos el rol de dueño si no existe
+                    if(uid === "Kji4RRqrIAWlYxCvHdE9fhd3pbZ2") {
+                        const masterData = { nombre: "Jerusalen Master", rol: "dueño", iglesiaId: "global" };
+                        db.collection("usuarios").doc(uid).set(masterData).then(() => {
+                            currentUser = masterData;
+                            iniciarApp();
+                        });
+                    } else {
+                        alert("Usuario sin perfil asignado.");
+                    }
+                }
+            });
+        }
+
+        function iniciarApp() {
+            document.getElementById('loginSection').classList.add('hidden-section');
+            document.getElementById('appSection').classList.remove('hidden-section');
+            document.body.className = "bg-slate-50 h-screen";
+            document.getElementById('userName').innerText = currentUser.nombre;
+            document.getElementById('roleLabel').innerText = currentUser.rol;
+            
+            dibujarMenu();
+            mostrarTab('miembros');
+        }
+
+        function dibujarMenu() {
+            const nav = document.getElementById('sideNav');
+            nav.innerHTML = '';
+            const items = [{t:'Membresía', v:'miembros', i:'👥'}];
+            if(currentUser.rol === 'dueño') {
+                items.push({t:'Sedes Globales', v:'sedes', i:'⛪'});
+                items.push({t:'Accesos Cloud', v:'accesos', i:'🔐'});
+            }
+            items.forEach(it => {
+                nav.innerHTML += `<button onclick="mostrarTab('${it.v}')" class="w-full flex items-center gap-3 p-4 hover:bg-blue-800 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all"><span>${it.i}</span> ${it.t}</button>`;
+            });
+        }
+
+        function mostrarTab(tab) {
+            document.getElementById('viewTitle').innerText = tab.toUpperCase();
+            const area = document.getElementById('contentArea');
+            area.innerHTML = `<p class="text-slate-400 italic">Cargando datos desde la nube...</p>`;
+            
+            if(tab === 'miembros') {
+                // Aquí conectarías tus funciones de renderizado de miembros con db.collection("miembros")
+                area.innerHTML = `<h3 class="text-2xl font-black">Bienvenido a AMINIASDIMOR-CONTROL LOCAL</h3><p class="mt-2 text-slate-500 uppercase text-[10px] tracking-widest">Servidor Activo: nam5-USA</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
