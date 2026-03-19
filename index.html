@@ -3,19 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMINIASDIMOR v5.0 - Cloud Master Edition</title>
-    
+    <title>AMINIASDIMOR v4.5 - Sistema de Gestión Ministerial Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Playfair+Display:italic&display=swap" rel="stylesheet">
-    
     <style>
         body { font-family: 'Inter', sans-serif; overflow: hidden; transition: background-color 0.5s ease; }
         .hidden-section { display: none !important; }
@@ -29,36 +22,19 @@
 </head>
 <body class="bg-[#004077] h-screen">
 
-    <script>
-        // CONFIGURACIÓN DE FIREBASE (Tus llaves reales)
-        const firebaseConfig = {
-            apiKey: "AIzaSyAuwdj4bvUyj-Oka2tk_MLKX4G95uWrJ5U",
-            authDomain: "aminiasdimor-v4.firebaseapp.com",
-            projectId: "aminiasdimor-v4",
-            storageBucket: "aminiasdimor-v4.firebasestorage.app",
-            messagingSenderId: "522972703623",
-            appId: "1:522972703623:web:bea006e84508762c4f0122",
-            measurementId: "G-TTZCSQ0XMT"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-    </script>
-
     <div id="loginSection" class="h-full flex items-center justify-center p-4 fade-in">
         <div class="max-w-4xl w-full bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[550px]">
             <div class="md:w-1/2 bg-gradient-to-br from-[#004077] via-[#0072CE] to-[#002d54] p-12 text-white flex flex-col justify-center items-center text-center">
                 <img src="https://i.postimg.cc/FzpMRdx4/1074ad9b-e99d-4891-a0ee-3ad298b86a68-removalai-preview.png" class="logo-login mb-4">
                 <h2 class="text-3xl font-black italic uppercase tracking-tighter mb-2">AMINIASDIMOR</h2>
-                <p class="text-blue-200 text-[9px] uppercase tracking-[0.4em] mb-6 font-bold opacity-80">Unión Peruana - Cloud Master</p>
+                <p class="text-blue-200 text-[9px] uppercase tracking-[0.4em] mb-6 font-bold opacity-80">Unión Peruana</p>
                 <div class="w-12 h-1 bg-[#F05A28] rounded-full mb-6"></div>
                 <p class="texto-biblico">"Pero hágase todo decentemente y con orden."<br><span class="text-[10px] font-sans not-italic font-bold tracking-widest mt-2 block uppercase">1 Corintios 14:40</span></p>
             </div>
             <div class="md:w-1/2 p-12 flex flex-col justify-center bg-white">
                 <h3 class="text-2xl font-black text-slate-800 mb-2 uppercase italic">Acceso Master</h3>
                 <form id="loginForm" class="space-y-6 mt-6">
-                    <input type="email" id="loginEmail" required placeholder="Correo Ministerial" class="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none focus:border-[#0072CE] transition-all text-sm font-medium">
+                    <input type="email" id="loginEmail" required placeholder="Correo electrónico" class="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none focus:border-[#0072CE] transition-all text-sm font-medium">
                     <input type="password" id="loginPass" required placeholder="Contraseña" class="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none focus:border-[#0072CE] transition-all text-sm font-medium">
                     <button type="submit" class="w-full bg-[#F05A28] text-white font-black py-4 rounded-2xl shadow-xl hover:bg-[#d44a1d] transition-all uppercase text-xs tracking-widest">Entrar al Sistema</button>
                 </form>
@@ -72,7 +48,7 @@
                 <img src="https://i.postimg.cc/FzpMRdx4/1074ad9b-e99d-4891-a0ee-3ad298b86a68-removalai-preview.png" class="w-10 h-10 object-contain">
                 <div>
                     <p id="displayUserRole" class="text-[7px] bg-[#F05A28] inline-block px-2 py-0.5 rounded-full font-black uppercase mb-1 tracking-tighter">Rol</p>
-                    <p id="currentEntityName" class="font-black text-[10px] uppercase tracking-tighter truncate leading-none italic">Usuario</p>
+                    <p id="currentEntityName" class="font-black text-[10px] uppercase tracking-tighter truncate leading-none italic">Entidad</p>
                 </div>
             </div>
             <nav class="flex-1 p-6 space-y-2 mt-4" id="mainNav"></nav>
@@ -95,28 +71,25 @@
     </div>
 
     <script>
+        // --- BASE DE DATOS LOCAL ---
+        if(!localStorage.getItem('users_v4')) {
+            localStorage.setItem('users_v4', JSON.stringify([{ email: 'zuinglio23@gmail.com', pass: 'Waggoner23', rol: 'dueño', nombre: 'Control Maestro', iglesiaId: 'global' }]));
+        }
+        if(!localStorage.getItem('iglesias_v4')) setDB('iglesias_v4', []);
+        if(!localStorage.getItem('miembros_v4')) setDB('miembros_v4', []);
+
         let currentUser = null;
         let fotoTemp = "";
+        const getDB = (key) => JSON.parse(localStorage.getItem(key)) || [];
+        const setDB = (key, val) => localStorage.setItem(key, JSON.stringify(val));
 
         // --- AUTENTICACIÓN ---
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
+            const email = document.getElementById('loginEmail').value;
             const pass = document.getElementById('loginPass').value;
-
-            auth.signInWithEmailAndPassword(email, pass)
-                .then((userCredential) => {
-                    db.collection("usuarios").doc(userCredential.user.uid).get().then(doc => {
-                        if(doc.exists) {
-                            currentUser = doc.data();
-                        } else {
-                            // Perfil maestro por defecto
-                            currentUser = { nombre: "Control Maestro", rol: "dueño", iglesiaId: "global" };
-                        }
-                        abrirDashboard();
-                    });
-                })
-                .catch(err => alert("❌ " + err.message));
+            const u = getDB('users_v4').find(x => x.email === email && x.pass === pass);
+            if(u) { currentUser = u; abrirDashboard(); } else { alert("❌ Credenciales incorrectas"); }
         });
 
         function abrirDashboard() {
@@ -129,14 +102,22 @@
             showTab('miembros');
         }
 
-        function cerrarSesionMaster() { auth.signOut().then(() => location.reload()); }
+        function cerrarSesionMaster() {
+            if(confirm("¿Seguro que desea cerrar sesión?")) {
+                currentUser = null;
+                document.getElementById('appSection').classList.add('hidden-section');
+                document.getElementById('loginSection').classList.remove('hidden-section');
+                document.body.className = "bg-[#004077] h-screen";
+            }
+        }
 
+        // --- NAVEGACIÓN ---
         function buildNav() {
             const nav = document.getElementById('mainNav');
             nav.innerHTML = '';
             const menu = {
-                dueño: [{ t: 'Censo General', i: '🌍', v: 'miembros' }, { t: 'Sedes Globales', i: '⛪', v: 'iglesias' }],
-                iglesia: [{ t: 'Miembros Sede', i: '👥', v: 'miembros' }],
+                dueño: [{ t: 'Censo General', i: '🌍', v: 'miembros' }, { t: 'Sedes Globales', i: '⛪', v: 'iglesias' }, { t: 'Control Accesos', i: '🔐', v: 'admins' }],
+                iglesia: [{ t: 'Miembros Sede', i: '👥', v: 'miembros' }, { t: 'Usuarios Admin', i: '🔐', v: 'admins' }],
                 administrativo: [{ t: 'Membresía', i: '📝', v: 'miembros' }]
             };
             menu[currentUser.rol].forEach(item => {
@@ -144,80 +125,104 @@
             });
         }
 
-        async function showTab(view) {
+        function showTab(view) {
             const actions = document.getElementById('headerActions');
             actions.innerHTML = '';
-            document.getElementById('contentArea').innerHTML = '<p class="text-center p-10 animate-pulse font-bold">Cargando Nube...</p>';
-
             if(view === 'miembros') {
                 document.getElementById('viewTitle').innerText = "Dashboard y Membresía";
                 actions.innerHTML = `
                     <input type="text" id="buscadoMiembro" onkeyup="buscarEnTabla()" placeholder="🔍 Buscar..." class="px-4 py-2 rounded-xl border border-slate-200 text-[10px] outline-none w-48">
+                    <button onclick="descargarExcel()" class="bg-emerald-600 text-white px-5 py-2 rounded-xl font-bold text-[9px] uppercase">Excel</button>
                     <button onclick="modalMiembro()" class="bg-[#F05A28] text-white px-5 py-2 rounded-xl font-bold text-[9px] uppercase shadow-lg">+ Nuevo</button>`;
                 renderMiembros();
+            } else if(view === 'iglesias') {
+                document.getElementById('viewTitle').innerText = "Gestión de Sedes";
+                actions.innerHTML = `
+                    <button onclick="exportarSistemaCompleto()" class="bg-slate-800 text-white px-4 py-2 rounded-xl font-bold text-[8px] uppercase">💾 Backup</button>
+                    <label class="bg-indigo-600 text-white px-4 py-2 rounded-xl font-bold text-[8px] uppercase cursor-pointer">📂 Restaurar<input type="file" class="hidden" onchange="importarSistemaCompleto(this)"></label>
+                    <button onclick="modalIglesia()" class="bg-[#0072CE] text-white px-6 py-2 rounded-xl font-bold text-[9px] uppercase shadow-lg">+ Nueva Iglesia</button>`;
+                renderIglesias();
+            } else if(view === 'admins') {
+                document.getElementById('viewTitle').innerText = "Control de Accesos";
+                if(currentUser.rol === 'iglesia') actions.innerHTML = `<button onclick="modalAdmin()" class="bg-[#0072CE] text-white px-6 py-2 rounded-xl font-bold text-[9px] uppercase">+ Nuevo Admin</button>`;
+                renderAdmins();
             }
         }
 
-        // --- RENDERIZADO DE MIEMBROS CLOUD ---
-        async function renderMiembros() {
-            let query = db.collection("miembros");
-            if(currentUser.rol !== 'dueño') query = query.where("iglesiaId", "==", currentUser.iglesiaId);
-            
-            const snap = await query.get();
-            const list = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        // --- DASHBOARD Y MIEMBROS ---
+        function renderMiembros() {
+            let list = getDB('miembros_v4');
+            if(currentUser.rol !== 'dueño') list = list.filter(m => m.iglesiaId === currentUser.iglesiaId);
 
-            const h = list.filter(m => m.genero === 'Masculino').length;
-            const m = list.filter(m => m.genero === 'Femenino').length;
+            const total = list.length;
+            const hombres = list.filter(m => m.genero === 'Masculino').length;
+            const mujeres = list.filter(m => m.genero === 'Femenino').length;
+            const mesActual = new Date().getMonth();
+            const cumpleañeros = list.filter(m => m.nac && new Date(m.nac).getMonth() === mesActual);
 
-            let dash = `
+            let dashboard = `
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-[2.5rem] shadow-sm flex flex-col items-center justify-center min-h-[200px]">
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Membresía Activa</p>
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Sedes / Miembros</p>
                         <div class="w-full max-w-[140px]"><canvas id="chartSedes"></canvas></div>
                     </div>
-                    <div class="bg-blue-600 p-8 rounded-[2rem] shadow-lg text-white flex flex-col justify-center">
-                        <p class="text-[8px] font-black uppercase opacity-70 mb-2">Total General</p>
-                        <h4 class="text-5xl font-black">${list.length}</h4>
+                    <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-50 flex flex-col">
+                        <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4 italic">🎂 Cumpleaños del Mes</p>
+                        <div class="space-y-3 overflow-y-auto max-h-[140px]">
+                            ${cumpleañeros.length > 0 ? cumpleañeros.map(c => `
+                                <div class="flex justify-between items-center border-b border-slate-50 pb-2">
+                                    <p class="text-[10px] font-bold text-slate-700 uppercase">${c.nombre}</p>
+                                    <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full text-[9px] font-black">Día ${new Date(c.nac).getDate()+1}</span>
+                                </div>`).join('') : '<p class="text-[10px] text-slate-400 italic text-center py-4">Sin cumpleaños registrados.</p>'}
+                        </div>
                     </div>
-                    <div class="bg-slate-800 p-8 rounded-[2rem] shadow-lg text-white flex flex-col justify-center">
-                        <p class="text-[8px] font-black uppercase opacity-70 mb-2">Hombres / Mujeres</p>
-                        <h4 class="text-3xl font-black">${h} / ${m}</h4>
+                    <div class="grid grid-rows-2 gap-4">
+                        <div class="bg-blue-600 p-6 rounded-[2rem] shadow-lg text-white">
+                            <p class="text-[8px] font-black uppercase opacity-70">Total General</p>
+                            <h4 class="text-4xl font-black">${total}</h4>
+                        </div>
+                        <div class="bg-slate-800 p-6 rounded-[2rem] shadow-lg text-white">
+                            <p class="text-[8px] font-black uppercase opacity-70">Géneros (H/M)</p>
+                            <h4 class="text-2xl font-black">${hombres} / ${mujeres}</h4>
+                        </div>
                     </div>
                 </div>`;
 
-            document.getElementById('contentArea').innerHTML = dash + `
+            document.getElementById('contentArea').innerHTML = dashboard + `
                 <div class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-slate-100">
                     <table class="w-full text-left text-[10px]">
                         <thead class="bg-slate-50 text-slate-400 font-black uppercase tracking-widest">
                             <tr><th class="p-6">Miembro</th><th class="p-6">Bautismo / Cargo</th><th class="p-6">Sede</th><th class="p-6 text-center">Acciones</th></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50">
-                            ${list.map(mi => `<tr>
+                            ${list.map(m => `<tr>
                                 <td class="p-6 flex items-center gap-4">
-                                    <img src="${mi.foto}" class="w-10 h-10 rounded-full object-cover shadow-sm bg-slate-50">
-                                    <div><p class="font-bold text-slate-800 uppercase">${mi.nombre}</p><p class="text-[8px] text-slate-400">DNI: ${mi.dni}</p></div>
+                                    <img src="${m.foto}" class="w-10 h-10 rounded-full object-cover shadow-sm bg-slate-50">
+                                    <div><p class="font-bold text-slate-800 uppercase">${m.nombre}</p><p class="text-[8px] text-slate-400">DNI: ${m.dni}</p></div>
                                 </td>
                                 <td class="p-6">
-                                    <p class="font-black text-blue-600 uppercase italic">${mi.bautismo || 'Pte.'}</p>
-                                    <p class="text-[8px] font-bold text-orange-500 uppercase">${mi.cargo || 'Miembro'}</p>
+                                    <p class="font-black text-blue-600 uppercase italic">${m.bautismo || 'Pte.'}</p>
+                                    <p class="text-[8px] font-bold text-orange-500 uppercase">${m.cargo || 'Miembro'}</p>
                                 </td>
-                                <td class="p-6 italic text-slate-500">${mi.iglesiaNombre}</td>
+                                <td class="p-6 italic text-slate-500">${m.iglesiaNombre}</td>
                                 <td class="p-6 text-center">
-                                    <button onclick="verFicha('${mi.id}')" class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg font-black uppercase hover:bg-blue-600 hover:text-white">Ficha</button>
-                                    <button onclick="eliminarM('${mi.id}')" class="ml-3 text-red-300 hover:text-red-600 font-black">✕</button>
+                                    <button onclick="verFicha(${m.id})" class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg font-black uppercase hover:bg-blue-600 hover:text-white transition-all">Ficha</button>
+                                    ${currentUser.rol === 'dueño' ? `<button onclick="editarMiembro(${m.id})" class="ml-2 bg-amber-50 text-amber-600 px-3 py-1.5 rounded-lg font-black uppercase hover:bg-amber-500 hover:text-white transition-all">Editar</button>` : ''}
+                                    <button onclick="eliminarM(${m.id})" class="ml-3 text-red-300 hover:text-red-600 transition-all font-black">✕</button>
                                 </td>
                             </tr>`).join('')}
                         </tbody>
                     </table>
                 </div>`;
             
-            new Chart(document.getElementById('chartSedes'), { type: 'doughnut', data: { labels: ['H', 'M'], datasets: [{ data: [h, m], backgroundColor: ['#0072CE', '#F05A28'], borderWidth: 0 }] }, options: { plugins: { legend: { display: false } }, cutout: '75%' } });
+            if(currentUser.rol === 'dueño') generarGraficoSedes();
         }
 
+        // --- GESTIÓN DE MIEMBROS ---
         function modalMiembro() {
             document.getElementById('modalGlobal').classList.remove('hidden');
             document.getElementById('modalContent').innerHTML = `
-                <h3 class="text-2xl font-black mb-6 text-[#004077] uppercase italic">Registro Cloud</h3>
+                <h3 class="text-2xl font-black mb-6 text-[#004077] uppercase italic">Registro de Miembro</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="md:col-span-2 flex flex-col items-center mb-4 bg-slate-50 p-6 rounded-[2rem] border border-dashed border-slate-200">
                         <div class="w-24 h-24 bg-white rounded-full mb-2 overflow-hidden border-4 border-white shadow-md"><img id="preview" src="" class="w-full h-full object-cover hidden"></div>
@@ -231,13 +236,15 @@
                     <input type="text" id="mCar" placeholder="Cargo" class="p-4 rounded-xl bg-slate-50 outline-none text-sm">
                     <input type="tel" id="mCel" placeholder="Celular" class="p-4 rounded-xl bg-slate-50 outline-none text-sm">
                     <input type="text" id="mMin" placeholder="Ministerio" class="p-4 rounded-xl bg-slate-50 outline-none text-sm">
-                    <button onclick="saveMiembro()" class="md:col-span-2 bg-[#F05A28] text-white py-5 rounded-2xl font-black uppercase text-xs mt-4 shadow-xl">Guardar en la Nube</button>
+                    <button onclick="saveMiembro()" class="md:col-span-2 bg-[#F05A28] text-white py-5 rounded-2xl font-black uppercase text-xs mt-4 shadow-xl">Guardar en Libro de Membresía</button>
                     <button onclick="document.getElementById('modalGlobal').classList.add('hidden')" class="md:col-span-2 text-slate-300 font-bold text-[10px] uppercase">Cancelar</button>
                 </div>`;
         }
 
-        async function saveMiembro() {
+        function saveMiembro() {
+            const list = getDB('miembros_v4');
             const m = {
+                id: Date.now(),
                 nombre: document.getElementById('mNom').value,
                 dni: document.getElementById('mDni').value,
                 genero: document.getElementById('mGen').value,
@@ -250,14 +257,41 @@
                 iglesiaId: currentUser.iglesiaId,
                 iglesiaNombre: currentUser.nombre
             };
-            if(!m.nombre || !m.dni) return alert("Faltan campos");
-            await db.collection("miembros").add(m);
+            if(!m.nombre || !m.dni) return alert("Faltan campos críticos");
+            list.push(m); setDB('miembros_v4', list);
             fotoTemp = ""; document.getElementById('modalGlobal').classList.add('hidden'); renderMiembros();
         }
 
-        async function verFicha(id) {
-            const doc = await db.collection("miembros").doc(id).get();
-            const m = doc.data();
+        function editarMiembro(id) {
+            const list = getDB('miembros_v4');
+            const m = list.find(x => x.id === id);
+            modalMiembro();
+            document.querySelector('#modalContent h3').innerText = "Editar Registro Ministerial";
+            const btn = document.querySelector('#modalContent button[onclick="saveMiembro()"]');
+            btn.innerText = "Actualizar Cambios";
+            btn.setAttribute("onclick", `updateMiembro(${id})`);
+            document.getElementById('mNom').value = m.nombre;
+            document.getElementById('mDni').value = m.dni;
+            document.getElementById('mNac').value = m.nac;
+            document.getElementById('mBau').value = m.bautismo;
+            document.getElementById('mCar').value = m.cargo;
+            document.getElementById('mCel').value = m.celular;
+            document.getElementById('mMin').value = m.ministerio;
+            fotoTemp = m.foto;
+            document.getElementById('preview').src = m.foto;
+            document.getElementById('preview').classList.remove('hidden');
+        }
+
+        function updateMiembro(id) {
+            let list = getDB('miembros_v4');
+            const i = list.findIndex(x => x.id === id);
+            list[i] = {...list[i], nombre: document.getElementById('mNom').value, dni: document.getElementById('mDni').value, nac: document.getElementById('mNac').value, bautismo: document.getElementById('mBau').value, cargo: document.getElementById('mCar').value, celular: document.getElementById('mCel').value, ministerio: document.getElementById('mMin').value, foto: fotoTemp};
+            setDB('miembros_v4', list); document.getElementById('modalGlobal').classList.add('hidden'); renderMiembros();
+        }
+
+        // --- FICHA PDF CON QR ---
+        function verFicha(id) {
+            const m = getDB('miembros_v4').find(x => x.id === id);
             document.getElementById('modalGlobal').classList.remove('hidden');
             document.getElementById('modalContent').innerHTML = `
                 <div id="capturePDF" class="p-10 text-center bg-white rounded-[3rem] border border-slate-100 relative">
@@ -278,11 +312,156 @@
                 </div>
                 <button onclick="exportarPDF('${m.nombre}')" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs mt-6">📥 Descargar Ficha PDF</button>
                 <button onclick="document.getElementById('modalGlobal').classList.add('hidden')" class="w-full text-slate-300 font-bold text-[10px] uppercase mt-2">Cerrar</button>`;
-            setTimeout(() => { new QRCode(document.getElementById("qrcode"), { text: `MIN:${m.nombre}|DNI:${m.dni}`, width: 70, height: 70 }); }, 100);
+
+            setTimeout(() => {
+                new QRCode(document.getElementById("qrcode"), { text: `MIN:${m.nombre}|DNI:${m.dni}|SEDE:${m.iglesiaNombre}`, width: 70, height: 70 });
+            }, 100);
         }
 
-        function exportarPDF(name) { html2pdf().set({ margin: 0.5, filename: `Ficha_${name}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3 } }).from(document.getElementById('capturePDF')).save(); }
-        
+        function exportarPDF(name) {
+            const element = document.getElementById('capturePDF');
+            html2pdf().set({ margin: 0.5, filename: `Ficha_${name}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3 } }).from(element).save();
+        }
+
+        // --- GESTIÓN DE SEDES ---
+        function renderIglesias() {
+            const list = getDB('iglesias_v4');
+            document.getElementById('contentArea').innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    ${list.map(i => `
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm text-center border hover:shadow-md transition-all">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 font-black">⛪</div>
+                        <h4 class="font-black uppercase text-xs text-slate-800">${i.nombre}</h4>
+                        <button onclick="editarSede('${i.id}')" class="mt-4 bg-slate-100 text-slate-600 px-4 py-1.5 rounded-lg text-[8px] font-black uppercase">Gestionar Sede</button>
+                    </div>`).join('')}
+                </div>`;
+        }
+
+        function modalIglesia() {
+            document.getElementById('modalGlobal').classList.remove('hidden');
+            document.getElementById('modalContent').innerHTML = `
+                <h3 class="text-2xl font-black mb-6 uppercase italic">Registrar Nueva Sede</h3>
+                <div class="space-y-4">
+                    <input type="text" id="nig" placeholder="Nombre de la Iglesia" class="w-full p-4 rounded-xl bg-slate-50 border-none outline-none">
+                    <input type="email" id="eig" placeholder="Correo para Acceso" class="w-full p-4 rounded-xl bg-slate-50 border-none outline-none">
+                    <input type="password" id="pig" placeholder="Contraseña Inicial" class="w-full p-4 rounded-xl bg-slate-50 border-none outline-none">
+                    <button onclick="saveIg()" class="w-full bg-[#004077] text-white py-4 rounded-xl font-black uppercase text-xs mt-4">Crear Acceso a Sede</button>
+                </div>`;
+        }
+
+        function saveIg() {
+            const id = Date.now().toString(), n = document.getElementById('nig').value, e = document.getElementById('eig').value, p = document.getElementById('pig').value;
+            if(!n || !e || !p) return alert("Complete los campos");
+            const igs = getDB('iglesias_v4'); igs.push({id, nombre:n}); setDB('iglesias_v4', igs);
+            const us = getDB('users_v4'); us.push({email:e, pass:p, rol:'iglesia', nombre:n, iglesiaId:id}); setDB('users_v4', us);
+            document.getElementById('modalGlobal').classList.add('hidden'); showTab('iglesias');
+        }
+
+        function editarSede(id) {
+            const igs = getDB('iglesias_v4'), us = getDB('users_v4');
+            const sede = igs.find(x => x.id === id), user = us.find(u => u.iglesiaId === id && u.rol === 'iglesia');
+            document.getElementById('modalGlobal').classList.remove('hidden');
+            document.getElementById('modalContent').innerHTML = `
+                <h3 class="text-xl font-black mb-4 uppercase">Actualizar Sede</h3>
+                <div class="space-y-3">
+                    <input type="text" id="en" value="${sede.nombre}" class="w-full p-4 bg-slate-50 rounded-xl outline-none">
+                    <input type="email" id="ee" value="${user.email}" class="w-full p-4 bg-slate-50 rounded-xl outline-none">
+                    <input type="text" id="ep" placeholder="Nueva Contraseña (Opcional)" class="w-full p-4 bg-slate-50 rounded-xl outline-none">
+                    <button onclick="updateSede('${id}')" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase">Guardar Cambios</button>
+                </div>`;
+        }
+
+        function updateSede(id) {
+            let igs = getDB('iglesias_v4'), us = getDB('users_v4'), ms = getDB('miembros_v4');
+            const n = document.getElementById('en').value, e = document.getElementById('ee').value, p = document.getElementById('ep').value;
+            igs = igs.map(i => i.id === id ? {...i, nombre:n} : i);
+            us = us.map(u => (u.iglesiaId === id && u.rol === 'iglesia') ? {...u, nombre:n, email:e, pass:p||u.pass} : u);
+            ms = ms.map(m => m.iglesiaId === id ? {...m, iglesiaNombre:n} : m);
+            setDB('iglesias_v4', igs); setDB('users_v4', us); setDB('miembros_v4', ms);
+            document.getElementById('modalGlobal').classList.add('hidden'); showTab('iglesias');
+        }
+
+        // --- GESTIÓN ACCESOS (ADMINS) ---
+        function renderAdmins() {
+            const us = getDB('users_v4');
+            let lista = currentUser.rol === 'dueño' ? us.filter(u => u.rol !== 'dueño') : us.filter(u => u.rol === 'administrativo' && u.iglesiaId === currentUser.iglesiaId);
+            
+            document.getElementById('contentArea').innerHTML = `
+                <div class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden">
+                    <table class="w-full text-left text-[10px]">
+                        <thead class="bg-slate-50 uppercase font-black tracking-widest text-slate-400">
+                            <tr><th class="p-6">Nombre</th><th class="p-6">Correo / Usuario</th><th class="p-6">Sede</th><th class="p-6 text-center">Acciones</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            ${lista.map(u => `<tr>
+                                <td class="p-6 font-bold uppercase">${u.nombre}</td>
+                                <td class="p-6 font-medium text-blue-500">${u.email}</td>
+                                <td class="p-6 italic font-bold">${u.iglesiaId === 'global' ? 'Maestro' : u.nombre}</td>
+                                <td class="p-6 text-center">
+                                    <button onclick="eliminarAcceso('${u.email}')" class="text-red-400 font-black hover:text-red-600">✕ Revocar</button>
+                                </td>
+                            </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
+        }
+
+        function modalAdmin() {
+            document.getElementById('modalGlobal').classList.remove('hidden');
+            document.getElementById('modalContent').innerHTML = `
+                <h3 class="text-2xl font-black mb-6 uppercase">Nuevo Administrador Local</h3>
+                <div class="space-y-4">
+                    <input type="text" id="an" placeholder="Nombre Admin" class="w-full p-4 rounded-xl bg-slate-50">
+                    <input type="email" id="ae" placeholder="Correo Acceso" class="w-full p-4 rounded-xl bg-slate-50">
+                    <input type="password" id="ap" placeholder="Contraseña" class="w-full p-4 rounded-xl bg-slate-50">
+                    <button onclick="saveAd()" class="w-full bg-[#0072CE] text-white py-4 rounded-xl font-black uppercase shadow-lg">Crear Usuario</button>
+                </div>`;
+        }
+
+        function saveAd() {
+            const us = getDB('users_v4');
+            const n = document.getElementById('an').value, e = document.getElementById('ae').value, p = document.getElementById('ap').value;
+            if(!n || !e || !p) return alert("Faltan datos");
+            us.push({ email: e, pass: p, rol: 'administrativo', nombre: n, iglesiaId: currentUser.iglesiaId, nombreSede: currentUser.nombre });
+            setDB('users_v4', us); document.getElementById('modalGlobal').classList.add('hidden'); renderAdmins();
+        }
+
+        function eliminarAcceso(email) { if(confirm("¿Eliminar este acceso permanentemente?")) { setDB('users_v4', getDB('users_v4').filter(u => u.email !== email)); renderAdmins(); } }
+
+        // --- FUNCIONES SISTEMA ---
+        function generarGraficoSedes() {
+            const ctx = document.getElementById('chartSedes');
+            if(!ctx) return;
+            const ms = getDB('miembros_v4'), igs = getDB('iglesias_v4');
+            const data = igs.map(i => ({ n: i.nombre, c: ms.filter(m => m.iglesiaId === i.id).length })).filter(d => d.c > 0);
+            new Chart(ctx, { type: 'doughnut', data: { labels: data.map(d => d.n), datasets: [{ data: data.map(d => d.c), backgroundColor: ['#004077', '#F05A28', '#0072CE', '#10b981', '#f59e0b'], borderWidth: 0 }] }, options: { plugins: { legend: { display: false } }, cutout: '75%' } });
+        }
+
+        function descargarExcel() {
+            let list = getDB('miembros_v4');
+            if(currentUser.rol !== 'dueño') list = list.filter(m => m.iglesiaId === currentUser.iglesiaId);
+            let csv = "\uFEFFNombre,DNI,Cargo,Bautismo,Sede,Celular\n";
+            list.forEach(m => csv += `"${m.nombre}","${m.dni}","${m.cargo}","${m.bautismo}","${m.iglesiaNombre}","${m.celular}"\n`);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Membresia_Aminiasdimor.csv"; link.click();
+        }
+
+        function exportarSistemaCompleto() {
+            const backup = { usuarios: getDB('users_v4'), iglesias: getDB('iglesias_v4'), miembros: getDB('miembros_v4') };
+            const link = document.createElement('a');
+            link.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+            link.download = "BACKUP_MASTER_" + new Date().toLocaleDateString() + ".json"; link.click();
+        }
+
+        function importarSistemaCompleto(input) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = JSON.parse(e.target.result);
+                if(data.usuarios) { setDB('users_v4', data.usuarios); setDB('iglesias_v4', data.iglesias); setDB('miembros_v4', data.miembros); alert("✅ Sistema Restaurado"); location.reload(); }
+            };
+            reader.readAsText(input.files[0]);
+        }
+
         function comprimir(input) {
             if (input.files && input.files[0]) {
                 const r = new FileReader();
@@ -302,13 +481,12 @@
         function buscarEnTabla() {
             const filtro = document.getElementById('buscadoMiembro').value.toUpperCase();
             const filas = document.querySelector("tbody").getElementsByTagName("tr");
-            for (let i = 0; i < filas.length; i++) { filas[i].style.display = filas[i].innerText.toUpperCase().includes(filtro) ? "" : "none"; }
+            for (let i = 0; i < filas.length; i++) {
+                filas[i].style.display = filas[i].innerText.toUpperCase().includes(filtro) ? "" : "none";
+            }
         }
 
-        async function eliminarM(id) { if(confirm("¿Eliminar de la nube?")) { await db.collection("miembros").doc(id).delete(); renderMiembros(); } }
-    </script>
-</body>
-</html>
+        function eliminarM(id) { if(confirm("¿Eliminar registro permanentemente?")) { setDB('miembros_v4', getDB('miembros_v4').filter(x => x.id !== id)); renderMiembros(); } }
     </script>
 </body>
 </html>
