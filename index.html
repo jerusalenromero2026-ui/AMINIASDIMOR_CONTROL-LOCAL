@@ -30,7 +30,7 @@
 <body class="bg-[#004077] h-screen">
 
     <script>
-        // CONFIGURACIÓN DE FIREBASE (Verificada)
+        // CONFIGURACIÓN DE FIREBASE (Tus llaves reales)
         const firebaseConfig = {
             apiKey: "AIzaSyAuwdj4bvUyj-Oka2tk_MLKX4G95uWrJ5U",
             authDomain: "aminiasdimor-v4.firebaseapp.com",
@@ -41,7 +41,6 @@
             measurementId: "G-TTZCSQ0XMT"
         };
 
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -52,14 +51,14 @@
             <div class="md:w-1/2 bg-gradient-to-br from-[#004077] via-[#0072CE] to-[#002d54] p-12 text-white flex flex-col justify-center items-center text-center">
                 <img src="https://i.postimg.cc/FzpMRdx4/1074ad9b-e99d-4891-a0ee-3ad298b86a68-removalai-preview.png" class="logo-login mb-4">
                 <h2 class="text-3xl font-black italic uppercase tracking-tighter mb-2">AMINIASDIMOR</h2>
-                <p class="text-blue-200 text-[9px] uppercase tracking-[0.4em] mb-6 font-bold opacity-80">Unión Peruana - Cloud</p>
+                <p class="text-blue-200 text-[9px] uppercase tracking-[0.4em] mb-6 font-bold opacity-80">Unión Peruana - Cloud Master</p>
                 <div class="w-12 h-1 bg-[#F05A28] rounded-full mb-6"></div>
                 <p class="texto-biblico">"Pero hágase todo decentemente y con orden."<br><span class="text-[10px] font-sans not-italic font-bold tracking-widest mt-2 block uppercase">1 Corintios 14:40</span></p>
             </div>
             <div class="md:w-1/2 p-12 flex flex-col justify-center bg-white">
                 <h3 class="text-2xl font-black text-slate-800 mb-2 uppercase italic">Acceso Master</h3>
                 <form id="loginForm" class="space-y-6 mt-6">
-                    <input type="email" id="loginEmail" required placeholder="Correo electrónico" class="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none focus:border-[#0072CE] transition-all text-sm font-medium">
+                    <input type="email" id="loginEmail" required placeholder="Correo Ministerial" class="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none focus:border-[#0072CE] transition-all text-sm font-medium">
                     <input type="password" id="loginPass" required placeholder="Contraseña" class="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none focus:border-[#0072CE] transition-all text-sm font-medium">
                     <button type="submit" class="w-full bg-[#F05A28] text-white font-black py-4 rounded-2xl shadow-xl hover:bg-[#d44a1d] transition-all uppercase text-xs tracking-widest">Entrar al Sistema</button>
                 </form>
@@ -72,8 +71,8 @@
             <div class="p-8 border-b border-blue-900/40 flex items-center gap-4">
                 <img src="https://i.postimg.cc/FzpMRdx4/1074ad9b-e99d-4891-a0ee-3ad298b86a68-removalai-preview.png" class="w-10 h-10 object-contain">
                 <div>
-                    <p id="displayUserRole" class="text-[7px] bg-[#F05A28] inline-block px-2 py-0.5 rounded-full font-black uppercase mb-1 tracking-tighter">...</p>
-                    <p id="currentEntityName" class="font-black text-[10px] uppercase tracking-tighter truncate leading-none italic">...</p>
+                    <p id="displayUserRole" class="text-[7px] bg-[#F05A28] inline-block px-2 py-0.5 rounded-full font-black uppercase mb-1 tracking-tighter">Rol</p>
+                    <p id="currentEntityName" class="font-black text-[10px] uppercase tracking-tighter truncate leading-none italic">Usuario</p>
                 </div>
             </div>
             <nav class="flex-1 p-6 space-y-2 mt-4" id="mainNav"></nav>
@@ -99,7 +98,7 @@
         let currentUser = null;
         let fotoTemp = "";
 
-        // --- AUTENTICACIÓN CLOUD ---
+        // --- AUTENTICACIÓN ---
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim();
@@ -107,24 +106,17 @@
 
             auth.signInWithEmailAndPassword(email, pass)
                 .then((userCredential) => {
-                    // Buscar perfil en Firestore
                     db.collection("usuarios").doc(userCredential.user.uid).get().then(doc => {
                         if(doc.exists) {
                             currentUser = doc.data();
-                            currentUser.uid = userCredential.user.uid;
-                            abrirDashboard();
                         } else {
-                            // Fallback para tu UID maestro
-                            if(userCredential.user.uid === "Kji4RRqrIAWlYxCvHdE9fhd3pbZ2") {
-                                currentUser = { nombre: "Control Maestro", rol: "dueño", iglesiaId: "global" };
-                                abrirDashboard();
-                            } else {
-                                alert("Usuario sin perfil asignado.");
-                            }
+                            // Perfil maestro por defecto
+                            currentUser = { nombre: "Control Maestro", rol: "dueño", iglesiaId: "global" };
                         }
+                        abrirDashboard();
                     });
                 })
-                .catch(err => alert("Acceso denegado: " + err.message));
+                .catch(err => alert("❌ " + err.message));
         });
 
         function abrirDashboard() {
@@ -137,18 +129,14 @@
             showTab('miembros');
         }
 
-        function cerrarSesionMaster() {
-            auth.signOut().then(() => {
-                location.reload();
-            });
-        }
+        function cerrarSesionMaster() { auth.signOut().then(() => location.reload()); }
 
         function buildNav() {
             const nav = document.getElementById('mainNav');
             nav.innerHTML = '';
             const menu = {
-                dueño: [{ t: 'Censo General', i: '🌍', v: 'miembros' }, { t: 'Sedes Globales', i: '⛪', v: 'iglesias' }, { t: 'Control Accesos', i: '🔐', v: 'admins' }],
-                iglesia: [{ t: 'Miembros Sede', i: '👥', v: 'miembros' }, { t: 'Usuarios Admin', i: '🔐', v: 'admins' }],
+                dueño: [{ t: 'Censo General', i: '🌍', v: 'miembros' }, { t: 'Sedes Globales', i: '⛪', v: 'iglesias' }],
+                iglesia: [{ t: 'Miembros Sede', i: '👥', v: 'miembros' }],
                 administrativo: [{ t: 'Membresía', i: '📝', v: 'miembros' }]
             };
             menu[currentUser.rol].forEach(item => {
@@ -159,195 +147,73 @@
         async function showTab(view) {
             const actions = document.getElementById('headerActions');
             actions.innerHTML = '';
-            document.getElementById('contentArea').innerHTML = '<p class="text-center p-10 font-bold animate-pulse">Cargando datos Cloud...</p>';
+            document.getElementById('contentArea').innerHTML = '<p class="text-center p-10 animate-pulse font-bold">Cargando Nube...</p>';
 
             if(view === 'miembros') {
                 document.getElementById('viewTitle').innerText = "Dashboard y Membresía";
                 actions.innerHTML = `
                     <input type="text" id="buscadoMiembro" onkeyup="buscarEnTabla()" placeholder="🔍 Buscar..." class="px-4 py-2 rounded-xl border border-slate-200 text-[10px] outline-none w-48">
-                    <button onclick="descargarExcel()" class="bg-emerald-600 text-white px-5 py-2 rounded-xl font-bold text-[9px] uppercase">Excel</button>
                     <button onclick="modalMiembro()" class="bg-[#F05A28] text-white px-5 py-2 rounded-xl font-bold text-[9px] uppercase shadow-lg">+ Nuevo</button>`;
                 renderMiembros();
-            } else if(view === 'iglesias') {
-                document.getElementById('viewTitle').innerText = "Gestión de Sedes";
-                actions.innerHTML = `<button onclick="modalIglesia()" class="bg-[#0072CE] text-white px-6 py-2 rounded-xl font-bold text-[9px] uppercase shadow-lg">+ Nueva Iglesia</button>`;
-                renderIglesias();
-            } else if(view === 'admins') {
-                document.getElementById('viewTitle').innerText = "Control de Accesos";
-                renderAdmins();
             }
         }
 
-        // --- GESTIÓN DE DATOS CLOUD ---
+        // --- RENDERIZADO DE MIEMBROS CLOUD ---
         async function renderMiembros() {
             let query = db.collection("miembros");
-            if(currentUser.rol !== 'dueño') {
-                query = query.where("iglesiaId", "==", currentUser.iglesiaId);
-            }
+            if(currentUser.rol !== 'dueño') query = query.where("iglesiaId", "==", currentUser.iglesiaId);
             
-            const snapshot = await query.get();
-            const list = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+            const snap = await query.get();
+            const list = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
 
-            const total = list.length;
-            const hombres = list.filter(m => m.genero === 'Masculino').length;
-            const mujeres = list.filter(m => m.genero === 'Femenino').length;
-            const mesActual = new Date().getMonth();
-            const cumpleañeros = list.filter(m => m.nac && new Date(m.nac).getMonth() === mesActual);
+            const h = list.filter(m => m.genero === 'Masculino').length;
+            const m = list.filter(m => m.genero === 'Femenino').length;
 
-            let dashboard = `
+            let dash = `
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-[2.5rem] shadow-sm flex flex-col items-center justify-center min-h-[200px]">
                         <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Membresía Activa</p>
                         <div class="w-full max-w-[140px]"><canvas id="chartSedes"></canvas></div>
                     </div>
-                    <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-50 flex flex-col">
-                        <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4 italic">🎂 Cumpleaños del Mes</p>
-                        <div class="space-y-3 overflow-y-auto max-h-[140px]">
-                            ${cumpleañeros.length > 0 ? cumpleañeros.map(c => `
-                                <div class="flex justify-between items-center border-b border-slate-50 pb-2">
-                                    <p class="text-[10px] font-bold text-slate-700 uppercase">${c.nombre}</p>
-                                    <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full text-[9px] font-black">Día ${new Date(c.nac).getDate()+1}</span>
-                                </div>`).join('') : '<p class="text-[10px] text-slate-400 italic text-center py-4">Sin cumpleaños registrados.</p>'}
-                        </div>
+                    <div class="bg-blue-600 p-8 rounded-[2rem] shadow-lg text-white flex flex-col justify-center">
+                        <p class="text-[8px] font-black uppercase opacity-70 mb-2">Total General</p>
+                        <h4 class="text-5xl font-black">${list.length}</h4>
                     </div>
-                    <div class="grid grid-rows-2 gap-4">
-                        <div class="bg-blue-600 p-6 rounded-[2rem] shadow-lg text-white">
-                            <p class="text-[8px] font-black uppercase opacity-70">Total General</p>
-                            <h4 class="text-4xl font-black">${total}</h4>
-                        </div>
-                        <div class="bg-slate-800 p-6 rounded-[2rem] shadow-lg text-white">
-                            <p class="text-[8px] font-black uppercase opacity-70">Géneros (H/M)</p>
-                            <h4 class="text-2xl font-black">${hombres} / ${mujeres}</h4>
-                        </div>
+                    <div class="bg-slate-800 p-8 rounded-[2rem] shadow-lg text-white flex flex-col justify-center">
+                        <p class="text-[8px] font-black uppercase opacity-70 mb-2">Hombres / Mujeres</p>
+                        <h4 class="text-3xl font-black">${h} / ${m}</h4>
                     </div>
                 </div>`;
 
-            document.getElementById('contentArea').innerHTML = dashboard + `
+            document.getElementById('contentArea').innerHTML = dash + `
                 <div class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-slate-100">
                     <table class="w-full text-left text-[10px]">
                         <thead class="bg-slate-50 text-slate-400 font-black uppercase tracking-widest">
                             <tr><th class="p-6">Miembro</th><th class="p-6">Bautismo / Cargo</th><th class="p-6">Sede</th><th class="p-6 text-center">Acciones</th></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50">
-                            ${list.map(m => `<tr>
+                            ${list.map(mi => `<tr>
                                 <td class="p-6 flex items-center gap-4">
-                                    <img src="${m.foto}" class="w-10 h-10 rounded-full object-cover shadow-sm bg-slate-50">
-                                    <div><p class="font-bold text-slate-800 uppercase">${m.nombre}</p><p class="text-[8px] text-slate-400">DNI: ${m.dni}</p></div>
+                                    <img src="${mi.foto}" class="w-10 h-10 rounded-full object-cover shadow-sm bg-slate-50">
+                                    <div><p class="font-bold text-slate-800 uppercase">${mi.nombre}</p><p class="text-[8px] text-slate-400">DNI: ${mi.dni}</p></div>
                                 </td>
                                 <td class="p-6">
-                                    <p class="font-black text-blue-600 uppercase italic">${m.bautismo || 'Pte.'}</p>
-                                    <p class="text-[8px] font-bold text-orange-500 uppercase">${m.cargo || 'Miembro'}</p>
+                                    <p class="font-black text-blue-600 uppercase italic">${mi.bautismo || 'Pte.'}</p>
+                                    <p class="text-[8px] font-bold text-orange-500 uppercase">${mi.cargo || 'Miembro'}</p>
                                 </td>
-                                <td class="p-6 italic text-slate-500">${m.iglesiaNombre}</td>
+                                <td class="p-6 italic text-slate-500">${mi.iglesiaNombre}</td>
                                 <td class="p-6 text-center">
-                                    <button onclick="verFicha('${m.id}')" class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg font-black uppercase hover:bg-blue-600 hover:text-white transition-all">Ficha</button>
-                                    <button onclick="eliminarM('${m.id}')" class="ml-3 text-red-300 hover:text-red-600 transition-all font-black">✕</button>
+                                    <button onclick="verFicha('${mi.id}')" class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg font-black uppercase hover:bg-blue-600 hover:text-white">Ficha</button>
+                                    <button onclick="eliminarM('${mi.id}')" class="ml-3 text-red-300 hover:text-red-600 font-black">✕</button>
                                 </td>
                             </tr>`).join('')}
                         </tbody>
                     </table>
                 </div>`;
             
-            generarGrafico(hombres, mujeres);
+            new Chart(document.getElementById('chartSedes'), { type: 'doughnut', data: { labels: ['H', 'M'], datasets: [{ data: [h, m], backgroundColor: ['#0072CE', '#F05A28'], borderWidth: 0 }] }, options: { plugins: { legend: { display: false } }, cutout: '75%' } });
         }
 
-        async function saveMiembro() {
-            const m = {
-                nombre: document.getElementById('mNom').value,
-                dni: document.getElementById('mDni').value,
-                genero: document.getElementById('mGen').value,
-                nac: document.getElementById('mNac').value,
-                celular: document.getElementById('mCel').value,
-                bautismo: document.getElementById('mBau').value,
-                cargo: document.getElementById('mCar').value,
-                ministerio: document.getElementById('mMin').value,
-                foto: fotoTemp || `https://ui-avatars.com/api/?name=${document.getElementById('mNom').value}&background=0072CE&color=fff`,
-                iglesiaId: currentUser.iglesiaId,
-                iglesiaNombre: currentUser.nombre,
-                creado: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            if(!m.nombre || !m.dni) return alert("Faltan campos críticos");
-            
-            await db.collection("miembros").add(m);
-            fotoTemp = ""; 
-            document.getElementById('modalGlobal').classList.add('hidden'); 
-            renderMiembros();
-        }
-
-        async function verFicha(id) {
-            const doc = await db.collection("miembros").doc(id).get();
-            const m = doc.data();
-            
-            document.getElementById('modalGlobal').classList.remove('hidden');
-            document.getElementById('modalContent').innerHTML = `
-                <div id="capturePDF" class="p-10 text-center bg-white rounded-[3rem] border border-slate-100 relative">
-                    <div class="flex justify-between items-start mb-8">
-                        <img src="https://i.postimg.cc/FzpMRdx4/1074ad9b-e99d-4891-a0ee-3ad298b86a68-removalai-preview.png" class="w-10 h-10 object-contain">
-                        <div class="text-right uppercase"><p class="text-[7px] font-black text-slate-400">Credencial AMINIASDIMOR</p><p class="text-[9px] font-black text-blue-600">${m.iglesiaNombre}</p></div>
-                    </div>
-                    <img src="${m.foto}" class="w-28 h-28 rounded-[2rem] mx-auto border-4 border-white shadow-xl object-cover mb-4">
-                    <h4 class="text-xl font-black uppercase text-slate-800">${m.nombre}</h4>
-                    <p class="text-orange-500 font-black text-[9px] uppercase tracking-[0.2em] mb-6">${m.cargo || 'Miembro General'}</p>
-                    <div class="grid grid-cols-2 gap-4 text-left text-[9px] border-t border-slate-100 pt-6">
-                        <p><b>DNI:</b> ${m.dni}</p> <p><b>Bautismo:</b> ${m.bautismo || 'Pte.'}</p>
-                        <p><b>Celular:</b> ${m.celular || 'S/N'}</p> <p><b>Ministerio:</b> ${m.ministerio || 'Gral.'}</p>
-                    </div>
-                    <div class="flex justify-center mt-6 pt-6 border-t border-dashed">
-                        <div id="qrcode" class="p-2 border rounded-xl"></div>
-                    </div>
-                </div>
-                <button onclick="exportarPDF('${m.nombre}')" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs mt-6">📥 Descargar Ficha PDF</button>
-                <button onclick="document.getElementById('modalGlobal').classList.add('hidden')" class="w-full text-slate-300 font-bold text-[10px] uppercase mt-2">Cerrar</button>`;
-
-            setTimeout(() => {
-                new QRCode(document.getElementById("qrcode"), { text: `MIN:${m.nombre}|DNI:${m.dni}|SEDE:${m.iglesiaNombre}`, width: 70, height: 70 });
-            }, 100);
-        }
-
-        async function eliminarM(id) {
-            if(confirm("¿Eliminar registro permanentemente?")) {
-                await db.collection("miembros").doc(id).delete();
-                renderMiembros();
-            }
-        }
-
-        // --- FUNCIONES SISTEMA ---
-        function generarGrafico(h, m) {
-            const ctx = document.getElementById('chartSedes');
-            if(!ctx) return;
-            new Chart(ctx, { 
-                type: 'doughnut', 
-                data: { 
-                    labels: ['Hombres', 'Mujeres'], 
-                    datasets: [{ 
-                        data: [h, m], 
-                        backgroundColor: ['#0072CE', '#F05A28'], 
-                        borderWidth: 0 
-                    }] 
-                }, 
-                options: { plugins: { legend: { display: false } }, cutout: '75%' } 
-            });
-        }
-
-        function comprimir(input) {
-            if (input.files && input.files[0]) {
-                const r = new FileReader();
-                r.onload = (e) => {
-                    const img = new Image(); img.src = e.target.result;
-                    img.onload = () => {
-                        const c = document.createElement('canvas'); c.width = 300; c.height = 300;
-                        c.getContext('2d').drawImage(img, 0, 0, 300, 300);
-                        fotoTemp = c.toDataURL('image/jpeg', 0.7);
-                        document.getElementById('preview').src = fotoTemp; 
-                        document.getElementById('preview').classList.remove('hidden');
-                    }
-                }
-                r.readAsDataURL(input.files[0]);
-            }
-        }
-
-        // (Las funciones de exportarPDF y modalMiembro se mantienen similares a tu v4.5)
         function modalMiembro() {
             document.getElementById('modalGlobal').classList.remove('hidden');
             document.getElementById('modalContent').innerHTML = `
@@ -370,11 +236,79 @@
                 </div>`;
         }
 
-        function exportarPDF(name) {
-            const element = document.getElementById('capturePDF');
-            html2pdf().set({ margin: 0.5, filename: `Credencial_${name}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3 } }).from(element).save();
+        async function saveMiembro() {
+            const m = {
+                nombre: document.getElementById('mNom').value,
+                dni: document.getElementById('mDni').value,
+                genero: document.getElementById('mGen').value,
+                nac: document.getElementById('mNac').value,
+                celular: document.getElementById('mCel').value,
+                bautismo: document.getElementById('mBau').value,
+                cargo: document.getElementById('mCar').value,
+                ministerio: document.getElementById('mMin').value,
+                foto: fotoTemp || `https://ui-avatars.com/api/?name=${document.getElementById('mNom').value}&background=0072CE&color=fff`,
+                iglesiaId: currentUser.iglesiaId,
+                iglesiaNombre: currentUser.nombre
+            };
+            if(!m.nombre || !m.dni) return alert("Faltan campos");
+            await db.collection("miembros").add(m);
+            fotoTemp = ""; document.getElementById('modalGlobal').classList.add('hidden'); renderMiembros();
         }
 
+        async function verFicha(id) {
+            const doc = await db.collection("miembros").doc(id).get();
+            const m = doc.data();
+            document.getElementById('modalGlobal').classList.remove('hidden');
+            document.getElementById('modalContent').innerHTML = `
+                <div id="capturePDF" class="p-10 text-center bg-white rounded-[3rem] border border-slate-100 relative">
+                    <div class="flex justify-between items-start mb-8">
+                        <img src="https://i.postimg.cc/FzpMRdx4/1074ad9b-e99d-4891-a0ee-3ad298b86a68-removalai-preview.png" class="w-10 h-10 object-contain">
+                        <div class="text-right uppercase"><p class="text-[7px] font-black text-slate-400">Credencial AMINIASDIMOR</p><p class="text-[9px] font-black text-blue-600">${m.iglesiaNombre}</p></div>
+                    </div>
+                    <img src="${m.foto}" class="w-28 h-28 rounded-[2rem] mx-auto border-4 border-white shadow-xl object-cover mb-4">
+                    <h4 class="text-xl font-black uppercase text-slate-800">${m.nombre}</h4>
+                    <p class="text-orange-500 font-black text-[9px] uppercase tracking-[0.2em] mb-6">${m.cargo || 'Miembro General'}</p>
+                    <div class="grid grid-cols-2 gap-4 text-left text-[9px] border-t border-slate-100 pt-6">
+                        <p><b>DNI:</b> ${m.dni}</p> <p><b>Bautismo:</b> ${m.bautismo || 'Pte.'}</p>
+                        <p><b>Celular:</b> ${m.celular || 'S/N'}</p> <p><b>Ministerio:</b> ${m.ministerio || 'Gral.'}</p>
+                    </div>
+                    <div class="flex justify-center mt-6 pt-6 border-t border-dashed">
+                        <div id="qrcode" class="p-2 border rounded-xl"></div>
+                    </div>
+                </div>
+                <button onclick="exportarPDF('${m.nombre}')" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs mt-6">📥 Descargar Ficha PDF</button>
+                <button onclick="document.getElementById('modalGlobal').classList.add('hidden')" class="w-full text-slate-300 font-bold text-[10px] uppercase mt-2">Cerrar</button>`;
+            setTimeout(() => { new QRCode(document.getElementById("qrcode"), { text: `MIN:${m.nombre}|DNI:${m.dni}`, width: 70, height: 70 }); }, 100);
+        }
+
+        function exportarPDF(name) { html2pdf().set({ margin: 0.5, filename: `Ficha_${name}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3 } }).from(document.getElementById('capturePDF')).save(); }
+        
+        function comprimir(input) {
+            if (input.files && input.files[0]) {
+                const r = new FileReader();
+                r.onload = (e) => {
+                    const img = new Image(); img.src = e.target.result;
+                    img.onload = () => {
+                        const c = document.createElement('canvas'); c.width = 300; c.height = 300;
+                        c.getContext('2d').drawImage(img, 0, 0, 300, 300);
+                        fotoTemp = c.toDataURL('image/jpeg', 0.7);
+                        document.getElementById('preview').src = fotoTemp; document.getElementById('preview').classList.remove('hidden');
+                    }
+                }
+                r.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function buscarEnTabla() {
+            const filtro = document.getElementById('buscadoMiembro').value.toUpperCase();
+            const filas = document.querySelector("tbody").getElementsByTagName("tr");
+            for (let i = 0; i < filas.length; i++) { filas[i].style.display = filas[i].innerText.toUpperCase().includes(filtro) ? "" : "none"; }
+        }
+
+        async function eliminarM(id) { if(confirm("¿Eliminar de la nube?")) { await db.collection("miembros").doc(id).delete(); renderMiembros(); } }
+    </script>
+</body>
+</html>
     </script>
 </body>
 </html>
