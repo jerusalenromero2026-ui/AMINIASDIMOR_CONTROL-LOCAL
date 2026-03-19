@@ -3,17 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMINIASDIMOR - CONTROL LOCAL</title>
+    <title>AMINIASDIMOR v5.0 - Cloud Master Edition</title>
     
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Playfair+Display:italic&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; overflow: hidden; transition: background-color 0.5s ease; }
+        .hidden-section { display: none !important; }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .logo-login { max-width: 180px; user-select: none; }
+        .texto-biblico { font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.85rem; color: rgba(255, 255, 255, 0.8); max-width: 280px; line-height: 1.4; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #0072CE; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-[#004077] h-screen">
 
     <script>
-        // TUS LLAVES REALES (Asegúrate de que coincidan con la imagen)
-    const firebaseConfig = {
+        // CONFIGURACIÓN DE FIREBASE (Verificada)
+        const firebaseConfig = {
             apiKey: "AIzaSyAuwdj4bvUyj-Oka2tk_MLKX4G95uWrJ5U",
             authDomain: "aminiasdimor-v4.firebaseapp.com",
             projectId: "aminiasdimor-v4",
@@ -23,55 +41,340 @@
             measurementId: "G-TTZCSQ0XMT"
         };
 
-        // INICIALIZACIÓN
+        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        
-        let currentUser = null;
     </script>
-</head>
-<body class="bg-[#004077] h-screen flex items-center justify-center p-4">
 
-    <div id="loginBox" class="bg-white p-10 rounded-[3rem] shadow-2xl max-w-sm w-full text-center">
-        <img src="https://i.postimg.cc/FzpMRdx4/1074ad9b-e99d-4891-a0ee-3ad298b86a68-removalai-preview.png" class="w-24 mx-auto mb-6">
-        <h2 class="text-2xl font-black text-[#004077] uppercase italic mb-6">Control Local</h2>
-        
-        <form id="loginForm" class="space-y-4">
-            <input type="email" id="logEmail" required placeholder="Correo Ministerial" class="w-full p-4 rounded-xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-orange-500 transition-all">
-            <input type="password" id="logPass" required placeholder="Contraseña" class="w-full p-4 rounded-xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-orange-500 transition-all">
-            <button type="submit" class="w-full bg-[#F05A28] text-white font-black py-4 rounded-xl uppercase shadow-lg hover:scale-105 transition-all">Entrar</button>
-        </form>
-    </div>
-
-    <div id="appPanel" class="hidden fixed inset-0 bg-slate-100 flex items-center justify-center">
-        <div class="text-center p-10 bg-white rounded-3xl shadow-xl border border-blue-100">
-            <h1 class="text-3xl font-black text-blue-900 mb-2">¡CONEXIÓN EXITOSA!</h1>
-            <p class="text-slate-500 font-bold uppercase text-[10px] tracking-widest mb-6">Bienvenido al Servidor Maestro</p>
-            <div id="userData" class="mb-8 p-4 bg-blue-50 rounded-2xl text-blue-700 font-bold uppercase italic text-xs"></div>
-            <button onclick="auth.signOut().then(() => location.reload())" class="bg-red-500 text-white px-8 py-3 rounded-xl font-black uppercase text-[10px]">Cerrar Sesión</button>
+    <div id="loginSection" class="h-full flex items-center justify-center p-4 fade-in">
+        <div class="max-w-4xl w-full bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[550px]">
+            <div class="md:w-1/2 bg-gradient-to-br from-[#004077] via-[#0072CE] to-[#002d54] p-12 text-white flex flex-col justify-center items-center text-center">
+                <img src="https://i.postimg.cc/FzpMRdx4/1074ad9b-e99d-4891-a0ee-3ad298b86a68-removalai-preview.png" class="logo-login mb-4">
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter mb-2">AMINIASDIMOR</h2>
+                <p class="text-blue-200 text-[9px] uppercase tracking-[0.4em] mb-6 font-bold opacity-80">Unión Peruana - Cloud</p>
+                <div class="w-12 h-1 bg-[#F05A28] rounded-full mb-6"></div>
+                <p class="texto-biblico">"Pero hágase todo decentemente y con orden."<br><span class="text-[10px] font-sans not-italic font-bold tracking-widest mt-2 block uppercase">1 Corintios 14:40</span></p>
+            </div>
+            <div class="md:w-1/2 p-12 flex flex-col justify-center bg-white">
+                <h3 class="text-2xl font-black text-slate-800 mb-2 uppercase italic">Acceso Master</h3>
+                <form id="loginForm" class="space-y-6 mt-6">
+                    <input type="email" id="loginEmail" required placeholder="Correo electrónico" class="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none focus:border-[#0072CE] transition-all text-sm font-medium">
+                    <input type="password" id="loginPass" required placeholder="Contraseña" class="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none focus:border-[#0072CE] transition-all text-sm font-medium">
+                    <button type="submit" class="w-full bg-[#F05A28] text-white font-black py-4 rounded-2xl shadow-xl hover:bg-[#d44a1d] transition-all uppercase text-xs tracking-widest">Entrar al Sistema</button>
+                </form>
+            </div>
         </div>
     </div>
 
+    <div id="appSection" class="hidden-section h-full flex bg-slate-50 fade-in">
+        <aside class="w-64 bg-[#004077] text-white flex flex-col shadow-2xl z-20">
+            <div class="p-8 border-b border-blue-900/40 flex items-center gap-4">
+                <img src="https://i.postimg.cc/FzpMRdx4/1074ad9b-e99d-4891-a0ee-3ad298b86a68-removalai-preview.png" class="w-10 h-10 object-contain">
+                <div>
+                    <p id="displayUserRole" class="text-[7px] bg-[#F05A28] inline-block px-2 py-0.5 rounded-full font-black uppercase mb-1 tracking-tighter">...</p>
+                    <p id="currentEntityName" class="font-black text-[10px] uppercase tracking-tighter truncate leading-none italic">...</p>
+                </div>
+            </div>
+            <nav class="flex-1 p-6 space-y-2 mt-4" id="mainNav"></nav>
+            <div class="p-8 border-t border-blue-900/40">
+                <button onclick="cerrarSesionMaster()" class="w-full py-3 border border-blue-800 rounded-xl text-[9px] text-blue-400 font-black uppercase tracking-[0.2em] hover:bg-red-500 hover:text-white transition-all">✕ Salir</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <header class="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-10">
+                <h2 id="viewTitle" class="text-xl font-black text-slate-800 uppercase italic tracking-tighter italic">Dashboard</h2>
+                <div id="headerActions" class="flex gap-3 items-center"></div>
+            </header>
+            <div id="contentArea" class="p-10 overflow-y-auto h-full bg-slate-50/50"></div>
+        </main>
+    </div>
+
+    <div id="modalGlobal" class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white p-10 rounded-[3rem] max-w-2xl w-full shadow-2xl overflow-y-auto max-h-[90vh]" id="modalContent"></div>
+    </div>
+
     <script>
+        let currentUser = null;
+        let fotoTemp = "";
+
+        // --- AUTENTICACIÓN CLOUD ---
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('logEmail').value.trim();
-            const pass = document.getElementById('logPass').value;
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPass').value;
 
-            // ESTO ES LO QUE PREGUNTA A GOOGLE
             auth.signInWithEmailAndPassword(email, pass)
                 .then((userCredential) => {
-                    document.getElementById('loginBox').classList.add('hidden');
-                    document.getElementById('appPanel').classList.remove('hidden');
-                    document.getElementById('userData').innerText = "Usuario: " + userCredential.user.email;
-                    document.body.className = "bg-slate-100 h-screen";
+                    // Buscar perfil en Firestore
+                    db.collection("usuarios").doc(userCredential.user.uid).get().then(doc => {
+                        if(doc.exists) {
+                            currentUser = doc.data();
+                            currentUser.uid = userCredential.user.uid;
+                            abrirDashboard();
+                        } else {
+                            // Fallback para tu UID maestro
+                            if(userCredential.user.uid === "Kji4RRqrIAWlYxCvHdE9fhd3pbZ2") {
+                                currentUser = { nombre: "Control Maestro", rol: "dueño", iglesiaId: "global" };
+                                abrirDashboard();
+                            } else {
+                                alert("Usuario sin perfil asignado.");
+                            }
+                        }
+                    });
                 })
-                .catch((error) => {
-                    console.error(error.code, error.message);
-                    alert("ACCESO DENEGADO: " + error.message);
-                });
+                .catch(err => alert("Acceso denegado: " + err.message));
         });
+
+        function abrirDashboard() {
+            document.getElementById('loginSection').classList.add('hidden-section');
+            document.getElementById('appSection').classList.remove('hidden-section');
+            document.body.className = "bg-slate-50 h-screen transition-all";
+            document.getElementById('displayUserRole').innerText = currentUser.rol;
+            document.getElementById('currentEntityName').innerText = currentUser.nombre;
+            buildNav();
+            showTab('miembros');
+        }
+
+        function cerrarSesionMaster() {
+            auth.signOut().then(() => {
+                location.reload();
+            });
+        }
+
+        function buildNav() {
+            const nav = document.getElementById('mainNav');
+            nav.innerHTML = '';
+            const menu = {
+                dueño: [{ t: 'Censo General', i: '🌍', v: 'miembros' }, { t: 'Sedes Globales', i: '⛪', v: 'iglesias' }, { t: 'Control Accesos', i: '🔐', v: 'admins' }],
+                iglesia: [{ t: 'Miembros Sede', i: '👥', v: 'miembros' }, { t: 'Usuarios Admin', i: '🔐', v: 'admins' }],
+                administrativo: [{ t: 'Membresía', i: '📝', v: 'miembros' }]
+            };
+            menu[currentUser.rol].forEach(item => {
+                nav.innerHTML += `<button onclick="showTab('${item.v}')" class="w-full flex items-center gap-3 p-4 hover:bg-blue-800 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all"><span>${item.i}</span> ${item.t}</button>`;
+            });
+        }
+
+        async function showTab(view) {
+            const actions = document.getElementById('headerActions');
+            actions.innerHTML = '';
+            document.getElementById('contentArea').innerHTML = '<p class="text-center p-10 font-bold animate-pulse">Cargando datos Cloud...</p>';
+
+            if(view === 'miembros') {
+                document.getElementById('viewTitle').innerText = "Dashboard y Membresía";
+                actions.innerHTML = `
+                    <input type="text" id="buscadoMiembro" onkeyup="buscarEnTabla()" placeholder="🔍 Buscar..." class="px-4 py-2 rounded-xl border border-slate-200 text-[10px] outline-none w-48">
+                    <button onclick="descargarExcel()" class="bg-emerald-600 text-white px-5 py-2 rounded-xl font-bold text-[9px] uppercase">Excel</button>
+                    <button onclick="modalMiembro()" class="bg-[#F05A28] text-white px-5 py-2 rounded-xl font-bold text-[9px] uppercase shadow-lg">+ Nuevo</button>`;
+                renderMiembros();
+            } else if(view === 'iglesias') {
+                document.getElementById('viewTitle').innerText = "Gestión de Sedes";
+                actions.innerHTML = `<button onclick="modalIglesia()" class="bg-[#0072CE] text-white px-6 py-2 rounded-xl font-bold text-[9px] uppercase shadow-lg">+ Nueva Iglesia</button>`;
+                renderIglesias();
+            } else if(view === 'admins') {
+                document.getElementById('viewTitle').innerText = "Control de Accesos";
+                renderAdmins();
+            }
+        }
+
+        // --- GESTIÓN DE DATOS CLOUD ---
+        async function renderMiembros() {
+            let query = db.collection("miembros");
+            if(currentUser.rol !== 'dueño') {
+                query = query.where("iglesiaId", "==", currentUser.iglesiaId);
+            }
+            
+            const snapshot = await query.get();
+            const list = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+
+            const total = list.length;
+            const hombres = list.filter(m => m.genero === 'Masculino').length;
+            const mujeres = list.filter(m => m.genero === 'Femenino').length;
+            const mesActual = new Date().getMonth();
+            const cumpleañeros = list.filter(m => m.nac && new Date(m.nac).getMonth() === mesActual);
+
+            let dashboard = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-[2.5rem] shadow-sm flex flex-col items-center justify-center min-h-[200px]">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Membresía Activa</p>
+                        <div class="w-full max-w-[140px]"><canvas id="chartSedes"></canvas></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-50 flex flex-col">
+                        <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4 italic">🎂 Cumpleaños del Mes</p>
+                        <div class="space-y-3 overflow-y-auto max-h-[140px]">
+                            ${cumpleañeros.length > 0 ? cumpleañeros.map(c => `
+                                <div class="flex justify-between items-center border-b border-slate-50 pb-2">
+                                    <p class="text-[10px] font-bold text-slate-700 uppercase">${c.nombre}</p>
+                                    <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full text-[9px] font-black">Día ${new Date(c.nac).getDate()+1}</span>
+                                </div>`).join('') : '<p class="text-[10px] text-slate-400 italic text-center py-4">Sin cumpleaños registrados.</p>'}
+                        </div>
+                    </div>
+                    <div class="grid grid-rows-2 gap-4">
+                        <div class="bg-blue-600 p-6 rounded-[2rem] shadow-lg text-white">
+                            <p class="text-[8px] font-black uppercase opacity-70">Total General</p>
+                            <h4 class="text-4xl font-black">${total}</h4>
+                        </div>
+                        <div class="bg-slate-800 p-6 rounded-[2rem] shadow-lg text-white">
+                            <p class="text-[8px] font-black uppercase opacity-70">Géneros (H/M)</p>
+                            <h4 class="text-2xl font-black">${hombres} / ${mujeres}</h4>
+                        </div>
+                    </div>
+                </div>`;
+
+            document.getElementById('contentArea').innerHTML = dashboard + `
+                <div class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-slate-100">
+                    <table class="w-full text-left text-[10px]">
+                        <thead class="bg-slate-50 text-slate-400 font-black uppercase tracking-widest">
+                            <tr><th class="p-6">Miembro</th><th class="p-6">Bautismo / Cargo</th><th class="p-6">Sede</th><th class="p-6 text-center">Acciones</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            ${list.map(m => `<tr>
+                                <td class="p-6 flex items-center gap-4">
+                                    <img src="${m.foto}" class="w-10 h-10 rounded-full object-cover shadow-sm bg-slate-50">
+                                    <div><p class="font-bold text-slate-800 uppercase">${m.nombre}</p><p class="text-[8px] text-slate-400">DNI: ${m.dni}</p></div>
+                                </td>
+                                <td class="p-6">
+                                    <p class="font-black text-blue-600 uppercase italic">${m.bautismo || 'Pte.'}</p>
+                                    <p class="text-[8px] font-bold text-orange-500 uppercase">${m.cargo || 'Miembro'}</p>
+                                </td>
+                                <td class="p-6 italic text-slate-500">${m.iglesiaNombre}</td>
+                                <td class="p-6 text-center">
+                                    <button onclick="verFicha('${m.id}')" class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg font-black uppercase hover:bg-blue-600 hover:text-white transition-all">Ficha</button>
+                                    <button onclick="eliminarM('${m.id}')" class="ml-3 text-red-300 hover:text-red-600 transition-all font-black">✕</button>
+                                </td>
+                            </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
+            
+            generarGrafico(hombres, mujeres);
+        }
+
+        async function saveMiembro() {
+            const m = {
+                nombre: document.getElementById('mNom').value,
+                dni: document.getElementById('mDni').value,
+                genero: document.getElementById('mGen').value,
+                nac: document.getElementById('mNac').value,
+                celular: document.getElementById('mCel').value,
+                bautismo: document.getElementById('mBau').value,
+                cargo: document.getElementById('mCar').value,
+                ministerio: document.getElementById('mMin').value,
+                foto: fotoTemp || `https://ui-avatars.com/api/?name=${document.getElementById('mNom').value}&background=0072CE&color=fff`,
+                iglesiaId: currentUser.iglesiaId,
+                iglesiaNombre: currentUser.nombre,
+                creado: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if(!m.nombre || !m.dni) return alert("Faltan campos críticos");
+            
+            await db.collection("miembros").add(m);
+            fotoTemp = ""; 
+            document.getElementById('modalGlobal').classList.add('hidden'); 
+            renderMiembros();
+        }
+
+        async function verFicha(id) {
+            const doc = await db.collection("miembros").doc(id).get();
+            const m = doc.data();
+            
+            document.getElementById('modalGlobal').classList.remove('hidden');
+            document.getElementById('modalContent').innerHTML = `
+                <div id="capturePDF" class="p-10 text-center bg-white rounded-[3rem] border border-slate-100 relative">
+                    <div class="flex justify-between items-start mb-8">
+                        <img src="https://i.postimg.cc/FzpMRdx4/1074ad9b-e99d-4891-a0ee-3ad298b86a68-removalai-preview.png" class="w-10 h-10 object-contain">
+                        <div class="text-right uppercase"><p class="text-[7px] font-black text-slate-400">Credencial AMINIASDIMOR</p><p class="text-[9px] font-black text-blue-600">${m.iglesiaNombre}</p></div>
+                    </div>
+                    <img src="${m.foto}" class="w-28 h-28 rounded-[2rem] mx-auto border-4 border-white shadow-xl object-cover mb-4">
+                    <h4 class="text-xl font-black uppercase text-slate-800">${m.nombre}</h4>
+                    <p class="text-orange-500 font-black text-[9px] uppercase tracking-[0.2em] mb-6">${m.cargo || 'Miembro General'}</p>
+                    <div class="grid grid-cols-2 gap-4 text-left text-[9px] border-t border-slate-100 pt-6">
+                        <p><b>DNI:</b> ${m.dni}</p> <p><b>Bautismo:</b> ${m.bautismo || 'Pte.'}</p>
+                        <p><b>Celular:</b> ${m.celular || 'S/N'}</p> <p><b>Ministerio:</b> ${m.ministerio || 'Gral.'}</p>
+                    </div>
+                    <div class="flex justify-center mt-6 pt-6 border-t border-dashed">
+                        <div id="qrcode" class="p-2 border rounded-xl"></div>
+                    </div>
+                </div>
+                <button onclick="exportarPDF('${m.nombre}')" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs mt-6">📥 Descargar Ficha PDF</button>
+                <button onclick="document.getElementById('modalGlobal').classList.add('hidden')" class="w-full text-slate-300 font-bold text-[10px] uppercase mt-2">Cerrar</button>`;
+
+            setTimeout(() => {
+                new QRCode(document.getElementById("qrcode"), { text: `MIN:${m.nombre}|DNI:${m.dni}|SEDE:${m.iglesiaNombre}`, width: 70, height: 70 });
+            }, 100);
+        }
+
+        async function eliminarM(id) {
+            if(confirm("¿Eliminar registro permanentemente?")) {
+                await db.collection("miembros").doc(id).delete();
+                renderMiembros();
+            }
+        }
+
+        // --- FUNCIONES SISTEMA ---
+        function generarGrafico(h, m) {
+            const ctx = document.getElementById('chartSedes');
+            if(!ctx) return;
+            new Chart(ctx, { 
+                type: 'doughnut', 
+                data: { 
+                    labels: ['Hombres', 'Mujeres'], 
+                    datasets: [{ 
+                        data: [h, m], 
+                        backgroundColor: ['#0072CE', '#F05A28'], 
+                        borderWidth: 0 
+                    }] 
+                }, 
+                options: { plugins: { legend: { display: false } }, cutout: '75%' } 
+            });
+        }
+
+        function comprimir(input) {
+            if (input.files && input.files[0]) {
+                const r = new FileReader();
+                r.onload = (e) => {
+                    const img = new Image(); img.src = e.target.result;
+                    img.onload = () => {
+                        const c = document.createElement('canvas'); c.width = 300; c.height = 300;
+                        c.getContext('2d').drawImage(img, 0, 0, 300, 300);
+                        fotoTemp = c.toDataURL('image/jpeg', 0.7);
+                        document.getElementById('preview').src = fotoTemp; 
+                        document.getElementById('preview').classList.remove('hidden');
+                    }
+                }
+                r.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // (Las funciones de exportarPDF y modalMiembro se mantienen similares a tu v4.5)
+        function modalMiembro() {
+            document.getElementById('modalGlobal').classList.remove('hidden');
+            document.getElementById('modalContent').innerHTML = `
+                <h3 class="text-2xl font-black mb-6 text-[#004077] uppercase italic">Registro Cloud</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2 flex flex-col items-center mb-4 bg-slate-50 p-6 rounded-[2rem] border border-dashed border-slate-200">
+                        <div class="w-24 h-24 bg-white rounded-full mb-2 overflow-hidden border-4 border-white shadow-md"><img id="preview" src="" class="w-full h-full object-cover hidden"></div>
+                        <label class="text-[10px] font-black text-[#0072CE] cursor-pointer uppercase tracking-widest">📸 Cargar Foto<input type="file" accept="image/*" class="hidden" onchange="comprimir(this)"></label>
+                    </div>
+                    <input type="text" id="mNom" placeholder="Nombre Completo" class="md:col-span-2 p-4 rounded-xl bg-slate-50 outline-none text-sm font-semibold">
+                    <input type="number" id="mDni" placeholder="DNI" class="p-4 rounded-xl bg-slate-50 outline-none text-sm">
+                    <select id="mGen" class="p-4 rounded-xl bg-slate-50 outline-none text-sm"><option>Masculino</option><option>Femenino</option></select>
+                    <input type="date" id="mNac" class="p-4 rounded-xl bg-slate-50 outline-none text-sm" title="Fecha Nacimiento">
+                    <input type="date" id="mBau" class="p-4 rounded-xl bg-slate-50 outline-none text-sm" title="Fecha Bautismo">
+                    <input type="text" id="mCar" placeholder="Cargo" class="p-4 rounded-xl bg-slate-50 outline-none text-sm">
+                    <input type="tel" id="mCel" placeholder="Celular" class="p-4 rounded-xl bg-slate-50 outline-none text-sm">
+                    <input type="text" id="mMin" placeholder="Ministerio" class="p-4 rounded-xl bg-slate-50 outline-none text-sm">
+                    <button onclick="saveMiembro()" class="md:col-span-2 bg-[#F05A28] text-white py-5 rounded-2xl font-black uppercase text-xs mt-4 shadow-xl">Guardar en la Nube</button>
+                    <button onclick="document.getElementById('modalGlobal').classList.add('hidden')" class="md:col-span-2 text-slate-300 font-bold text-[10px] uppercase">Cancelar</button>
+                </div>`;
+        }
+
+        function exportarPDF(name) {
+            const element = document.getElementById('capturePDF');
+            html2pdf().set({ margin: 0.5, filename: `Credencial_${name}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3 } }).from(element).save();
+        }
+
     </script>
 </body>
 </html>
